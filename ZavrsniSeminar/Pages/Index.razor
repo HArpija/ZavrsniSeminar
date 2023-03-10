@@ -1,0 +1,121 @@
+﻿@page "/"
+@page "/radniZadataks"
+@using ZavrsniSeminar.Models;
+@inject HttpClient httpClient;
+@inject NavigationManager navManager;
+
+
+<h3>Radni zadatci</h3>
+
+
+    <ul>
+        @foreach (var item in radniZadataks)
+    {
+        <li>
+            @item.Id
+            <br>
+            @item.Todo
+            <br>
+            @item.RadnikIme
+            <br>
+            @item.RadnikPrezime
+            <br>
+            @item.OpisPosla
+            <br>
+            @item.Datum
+            <br>
+            <input type="checkbox" id="myCheck"> @item.IsDone
+            <br>
+            <p>
+            <button @onclick="()=>Rijeseno(item.Id)">Riješeno</button>
+            
+            <button @onclick="Refresh">Osvježi</button>
+            </p>
+        </li>
+    }
+</ul>
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+    public List<RadniZadatak> radniZadataks = new List<RadniZadatak>();
+    public bool IsDone = true;
+
+   
+
+    protected override async Task OnInitializedAsync()   /* dohvacanje cijele liste iz Apija  */
+    {
+        var result = await httpClient.GetAsync("https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars");
+        if (result.IsSuccessStatusCode)
+        {
+            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
+            radniZadataks = radniZadataks.OrderBy(x=>x.Todo).ToList();    /* po abecedi prema Todo */
+        }
+    }
+
+    public void Rijeseno(int id)                         /*  funcija za dugme Rijeseno da nas odvede na stranicu Rijeseni zadatci  */
+    {
+        navManager.NavigateTo($"rijeseniZadatci/{id}");
+    }
+
+                                                           /*  ne radi  !!!!!
+                                                            * 
+                                                            * lista za dohvacanje rijesenih zadataka koji su IsDone   ???
+                                                            * 
+                                                            */
+    public async Task Refresh()
+    {
+        var result = await httpClient.GetAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
+
+        if (result.IsSuccessStatusCode)
+        {
+            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>(); 
+            radniZadataks = radniZadataks.OrderBy(x => x.Todo).Where(x => x.IsDone == false).ToList();
+        }
+    }
+
+
+
+
+    /* public List<RijeseniZadatci> rijeseniZadatcis = new List<RijeseniZadatci>();*/
+
+
+    /* public async Task RijeseniZadatak()
+    {
+        var result = await httpClient.PostAsJsonAsync<RijeseniZadatci>($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/IsDone/{Id}",rijeseniZadatks);
+        if (result.IsSuccessStatusCode)
+        {
+            navManager.NavigateTo($"/rijeseniZadatci/{Id}");
+        }
+        else
+        {
+            IsDone = false;
+        }
+
+
+    } 
+
+
+    public async Task RijeseniZadatak(int id)
+    {
+        var result = await httpClient.GetAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
+        if (result.IsSuccessStatusCode)
+
+        {
+            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
+            radniZadataks = radniZadataks.Where(x=>x.IsDone=false).ToList();
+        }
+        else
+        {
+            rijeseniZadatcis = await result.Content.ReadFromJsonAsync<List<RijeseniZadatci>>();
+            rijeseniZadatcis = rijeseniZadatcis.ToList();
+            /* navManager.NavigateTo($"/rijeseniZadatci/{Id}");
+        }
+
+    }
+    
+    
+            */
+}
+
