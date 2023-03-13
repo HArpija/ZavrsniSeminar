@@ -66,21 +66,27 @@
     }
 
 
-    public async Task RijeseniZadatak(int id)                                               
+
+    public async Task Obrisi(int Id)
     {
-        var result = await httpClient.PostAsJsonAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/IsDone/{id}","");
-        if (result.IsSuccessStatusCode)
+        var result = await httpClient.DeleteAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
+        if(result.IsSuccessStatusCode)
         {
-            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
-            radniZadataks = radniZadataks.OrderByDescending(x => x.Datum).Where(x => x.IsDone == true).ToList();
+            var result2 = await httpClient.GetAsync("https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars"); /* dohvati novu listu,bez obrisanog */
+            if (result2.IsSuccessStatusCode)
+            {
+                radniZadataks = await result2.Content.ReadFromJsonAsync<List<RadniZadatak>>();
+                radniZadataks = radniZadataks.Where(x => x.IsDone ==true).OrderByDescending(x => x.Datum).ToList();    /* rijeseni zadatci,redosljed prema zadnje rijesenom po datumu  */
+            }
+            StateHasChanged();
         }
+        
     }
 
-   
-    public void Obrisi(int id)
-    {
-        navManager.NavigateTo($"/delete/{id}");
-    }
+    //  public void Obrisi(int id)
+    //{
+    //    navManager.NavigateTo($"/delete/{id}");
+    //}
   
     public void Natrag()
     {
