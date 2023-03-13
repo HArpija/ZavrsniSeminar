@@ -5,55 +5,46 @@
 
 
 <h3>Dodaj radni zadatak</h3>     
+ 
 
-
-<form @onsubmit="DodajZadatak">
+    <form @onsubmit="DodajZadatak">
+    <div class="mb-3">
+        <label for="ftodo" class="form-label">To do</label>
+        <input class="form-control" id="ftodo" @bind-value="radniZadatak.Todo" name="ftodo" type="text" placeholder="Upiši zadatak" />
+    </div>
+    <div class="mb-3">
+        <label for="fime" class="form-label">Ime radnika</label>
+        <input class="form-control" id="fime" @bind-value="radniZadatak.RadnikIme" name="fime" type="text" placeholder="Upiši ime" />
+    </div>
+    <div class="mb-3">
+        <label for="fprezime" class="form-label">Prezime radnika</label>
+        <input class="form-control" id="fprezime" @bind-value="radniZadatak.RadnikPrezime" name="fprezime" type="text" placeholder="Upiši prezime" />
+    </div>
+    <div class="mb-3">
+        <label for="fopis" class="form-label">Opis posla</label>
+        <input class="form-control" id="fopis" @bind-value="radniZadatak.OpisPosla" name="fopis" type="text" placeholder="Opis posla" />
+    </div>
     <p>
-        <label for="ftodo">Todo</label>
-        <input id="ftodo" @bind-value="radniZadatak.Todo" name="ftodo" type="text" placeholder="Upiši to do" />
+        <button class="btn btn-primary" type="submit">Dodaj radni zadatak</button>
     </p>
-    <p>
-        <label for="fime">Ime radnika</label>
-        <input id="fime" @bind-value="radniZadatak.RadnikIme" name="fime" type="text" placeholder="Upiši ime" />
-    </p>
-    <p>
-        <label for="fprezime">Prezime radnika</label>
-        <input id="fprezime" @bind-value="radniZadatak.RadnikPrezime" name="fprezime" type="text" placeholder="Upiši prezime" />
-    </p>
-    <p>
-        <label for="fopis">Opis posla</label>
-        <input id="fopis" @bind-value="radniZadatak.OpisPosla" name="fopis" type="text" placeholder="Opis posla" />
-    </p>
-    <p>
-        <label for="fdate">Datum</label>
-        <input id="fdate" @bind-value="radniZadatak.Datum" name="fdate" type="datetime-local" placeholder="Datum" />
-    </p>
-    <p>
-        <label for="fid">IsDone</label>
-        <input id="fid" @bind-value="radniZadatak.IsDone" name="fid" type="checkbox" placeholder="Is done" />
-    </p>
-
-    <p>
-        <button type="submit">Dodaj radni zadatak</button>
-    </p>
-
-   
 
 </form>
 
 
 
 @code {
-                                                                      /*   dodaj zadatak  */
-        public RadniZadatak radniZadatak = new RadniZadatak();
+    /*   dodaj zadatak  */
+    public RadniZadatak radniZadatak = new RadniZadatak();
 
-        public async Task DodajZadatak()
-         {
-           var result = await httpClient.PostAsJsonAsync<RadniZadatak>($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars", radniZadatak);
+    public async Task DodajZadatak()
+    {
+        radniZadatak.IsDone = false;               /* definiranje objekata koji nisu null   */
+        radniZadatak.Datum = DateTime.Now;
+        var result = await httpClient.PostAsJsonAsync<RadniZadatak>($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars", radniZadatak);
             if(result.IsSuccessStatusCode)
             {
                 navManager.NavigateTo("/radniZadataks");
             }
-         }
+    }
    
 }

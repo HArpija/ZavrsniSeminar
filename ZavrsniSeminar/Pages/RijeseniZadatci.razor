@@ -1,99 +1,89 @@
-﻿@page "/rijeseniZadatci/{id:int}"
+﻿@page "/rijeseniZadatci"
 @using ZavrsniSeminar.Models;
 @inject HttpClient httpClient;
 @inject NavigationManager navManager;
+@inject IJSRuntime jsRun;
 
 
-
-<h3>Rijeseni zadatci</h3>
+ <p><h3>Rijeseni zadatci</h3>
+<button @onclick="Natrag" type="button">Natrag</button></p>
 
  @if (IsError==true)
 {
-    <p>Nesto je posko po krivu,kontaktirajte administratora!</p>
+    <p>Nešto je pošlo po krivu,kontaktirajte administratora!</p>
 }
 
-<form @onsubmit="RijeseniZadatak">
-    <p> Zadatak br: @Id </p>
-    <p>
-        <label for="ftodo">Todo</label>
-        <input id="ftodo" @bind-value="radniZadatak.Todo" name="ftodo" type="text" placeholder="Upiši to do" />
-    </p>
-    <p>
-        <label for="fime">Ime radnika</label>
-        <input id="fime" @bind-value="radniZadatak.RadnikIme" name="fime" type="text" placeholder="Upiši ime" />
-    </p>
-    <p>
-        <label for="fprezime">Prezime radnika</label>
-        <input id="fprezime" @bind-value="radniZadatak.RadnikPrezime" name="fprezime" type="text" placeholder="Upiši prezime" />
-    </p>
-    <p>
-        <label for="fopis">Opis posla</label>
-        <input id="fopis" @bind-value="radniZadatak.OpisPosla" name="fopis" type="text" placeholder="Opis posla" />
-    </p>
-    <p>
-        <label for="fdate">Datum</label>
-        <input id="fdate" @bind-value="radniZadatak.Datum" name="fdate" type="datetime" placeholder="Datum" readonly />
-    </p>
-    <p>
-        <label for="fid">IsDone</label>
-        <input id="fid" @bind-value="radniZadatak.IsDone" name="fid" type="checkbox" placeholder="Is done" />
-    </p>
-
-    <p>
-        <button @onclick="Delete" type="submit">Obriši</button>
-    </p>
-
-
-
+<form>
+    <table class="table table-hover">
+        <thead>
+            <tr class="table-primary">
+                <th scope="col">Id</th>
+                <th scope="col">Todo</th>
+                <th scope="col">Radnik ime</th>
+                <th scope="col">Radnik prezime</th>
+                <th scope="col">Opis posla</th>
+                <th scope="col">Datum</th>
+                <th colspan="3">Riješeno</th>
+            </tr>
+        </thead>
+        @foreach (var item in radniZadataks)
+        {
+            <tbody>
+                <tr>
+                    <td> @item.Id</td>
+                    <td> @item.Todo</td>
+                    <td> @item.RadnikIme</td>
+                    <td> @item.RadnikPrezime</td>
+                    <td> @item.OpisPosla</td>
+                    <td> @item.Datum</td>
+                    <td> <button @onclick="()=>Obrisi(item.Id)">Obriši</button> </td>
+                </tr>
+            </tbody>
+        }
+    </table>
+  
 </form>
 
 
 
 
 @code {
-
-    [Parameter]
     public int Id { get; set; }
     public bool IsDone = true;
     public bool IsError = false;
+    public List<RadniZadatak> radniZadataks = new List<RadniZadatak>();
     public RadniZadatak radniZadatak = new RadniZadatak();
-    
-    protected override async Task OnInitializedAsync()                  /* dohvati zadatak sa liste zadataka  */
+
+    protected override async Task OnInitializedAsync()   /* dohvacanje cijele liste iz Apija  */
     {
-        var result = await httpClient.GetAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
+        var result = await httpClient.GetAsync("https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars");
         if (result.IsSuccessStatusCode)
         {
-            radniZadatak = await result.Content.ReadFromJsonAsync<RadniZadatak>();
+            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
+            radniZadataks = radniZadataks.OrderByDescending(x => x.Datum).Where(x => x.IsDone == true).ToList();    /* po zadnje dodanom datumu */
         }
-    }  
-
-    public async Task RijeseniZadatak()                                                 /*  prikazi rijesenog zadatka  */
-    {
-        var result = await httpClient.PostAsJsonAsync<RadniZadatak>($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/IsDone/{Id}", radniZadatak);
-        if (result.IsSuccessStatusCode)
-        {
-            navManager.NavigateTo($"/rijeseniZadatci/{Id}");
-        }
-        else
-        {
-            IsDone = false;
-        }
-
 
     }
 
-    public async Task Delete()  /*  brisanje zadataka  */
+
+    public async Task RijeseniZadatak(int id)                                               
     {
-        var result = await httpClient.DeleteAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
+        var result = await httpClient.PostAsJsonAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/IsDone/{id}","");
         if (result.IsSuccessStatusCode)
         {
-            navManager.NavigateTo("/radniZadataks");
-        }
-        else
-        {
-            IsError = true;
+            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
+            radniZadataks = radniZadataks.OrderByDescending(x => x.Datum).Where(x => x.IsDone == true).ToList();
         }
     }
 
-    
+   
+    public void Obrisi(int id)
+    {
+        navManager.NavigateTo($"/delete/{id}");
+    }
+  
+    public void Natrag()
+    {
+        navManager.NavigateTo($"/");
+    }
 }

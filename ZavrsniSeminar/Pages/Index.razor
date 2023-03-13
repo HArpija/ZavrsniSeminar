@@ -6,43 +6,38 @@
 
 
 <h3>Radni zadatci</h3>
-
-
-    <ul>
-        @foreach (var item in radniZadataks)
+<table class="table table-hover">
+   <thead>
+        <tr class="table-primary">
+         <th scope="col">Id</th>
+          <th scope="col">Todo</th>
+          <th scope="col">Radnik ime</th>
+           <th scope="col">Radnik prezime</th>
+            <th scope="col">Opis posla</th>
+            <th scope="col">Datum</th>
+            <th colspan="3">Riješeno</th>
+     </tr>
+   </thead>
+    @foreach(var item in radniZadataks)
     {
-        <li>
-            @item.Id
-            <br>
-            @item.Todo
-            <br>
-            @item.RadnikIme
-            <br>
-            @item.RadnikPrezime
-            <br>
-            @item.OpisPosla
-            <br>
-            @item.Datum
-            <br>
-            <input type="checkbox" id="myCheck"> @item.IsDone
-            <br>
-            <p>
-            <button @onclick="()=>Rijeseno(item.Id)">Riješeno</button>
-            
-            <button @onclick="Refresh">Osvježi</button>
-            </p>
-        </li>
+        <tbody>
+            <tr>
+                <td> @item.Id</td>
+                <td> @item.Todo</td>
+                <td> @item.RadnikIme</td>
+                <td> @item.RadnikPrezime</td>
+                <td> @item.OpisPosla</td>
+                <td> @item.Datum</td>
+                <td> <button @onclick="()=>Rijeseno(item.Id)">Riješeno</button></td>
+            </tr>
+        </tbody>
     }
-</ul>
-
+</table>
+ 
 
 @code {
-    [Parameter]
-    public int Id { get; set; }
     public List<RadniZadatak> radniZadataks = new List<RadniZadatak>();
     public bool IsDone = true;
-
-   
 
     protected override async Task OnInitializedAsync()   /* dohvacanje cijele liste iz Apija  */
     {
@@ -50,72 +45,26 @@
         if (result.IsSuccessStatusCode)
         {
             radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
-            radniZadataks = radniZadataks.OrderBy(x=>x.Todo).ToList();    /* po abecedi prema Todo */
+            radniZadataks = radniZadataks.Where(x => x.IsDone == false).OrderBy(x => x.Todo).ToList();    /* po abecedi prema Todo  i po ne rijesenom  */
         }
     }
 
-    public void Rijeseno(int id)                         /*  funcija za dugme Rijeseno da nas odvede na stranicu Rijeseni zadatci  */
+    public async Task Rijeseno(int id)                         /*  funcija za dugme Rijeseno da rijesene zadatke prebaci u listu rijesenih zadataka i da ostane na istoj stranici */
     {
-        navManager.NavigateTo($"rijeseniZadatci/{id}");
-    }
-
-                                                           /*  ne radi  !!!!!
-                                                            * 
-                                                            * lista za dohvacanje rijesenih zadataka koji su IsDone   ???
-                                                            * 
-                                                            */
-    public async Task Refresh()
-    {
-        var result = await httpClient.GetAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
-
+        var result = await httpClient.PostAsJsonAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/IsDone/{id}", "");  /* stvorio se novi zadatak koji je rijesen  */
         if (result.IsSuccessStatusCode)
         {
-            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>(); 
-            radniZadataks = radniZadataks.OrderBy(x => x.Todo).Where(x => x.IsDone == false).ToList();
+            var result2 = await httpClient.GetAsync("https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars"); /* druga lista zadataka- rijesenih*/
+            if (result2.IsSuccessStatusCode)
+            {
+                radniZadataks = await result2.Content.ReadFromJsonAsync<List<RadniZadatak>>();
+                radniZadataks = radniZadataks.Where(x => x.IsDone == false).OrderByDescending(x => x.Datum).ToList();    /* rijeseni zadatci,redosljed prema zadnje rijesenom po datumu  */
+            }
+            StateHasChanged();
         }
     }
-
-
-
-
-    /* public List<RijeseniZadatci> rijeseniZadatcis = new List<RijeseniZadatci>();*/
-
-
-    /* public async Task RijeseniZadatak()
-    {
-        var result = await httpClient.PostAsJsonAsync<RijeseniZadatci>($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/IsDone/{Id}",rijeseniZadatks);
-        if (result.IsSuccessStatusCode)
-        {
-            navManager.NavigateTo($"/rijeseniZadatci/{Id}");
-        }
-        else
-        {
-            IsDone = false;
-        }
-
-
-    } 
-
-
-    public async Task RijeseniZadatak(int id)
-    {
-        var result = await httpClient.GetAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
-        if (result.IsSuccessStatusCode)
-
-        {
-            radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
-            radniZadataks = radniZadataks.Where(x=>x.IsDone=false).ToList();
-        }
-        else
-        {
-            rijeseniZadatcis = await result.Content.ReadFromJsonAsync<List<RijeseniZadatci>>();
-            rijeseniZadatcis = rijeseniZadatcis.ToList();
-            /* navManager.NavigateTo($"/rijeseniZadatci/{Id}");
-        }
-
-    }
-    
-    
-            */
 }
+    
+    
+           
 
