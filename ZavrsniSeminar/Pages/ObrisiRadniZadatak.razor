@@ -5,40 +5,29 @@
 @inject IJSRuntime jsRun;
 
 
-<p>
-    <h3>Obriši zadatak</h3>
-    <button @onclick="Natrag" type="button">Natrag</button>
-</p>
+
+
+    <h3>Obriši zadatak</h3> 
+    
 @if (IsError == true)
 {
     <p>Nešto je pošlo po krivu,kontaktirajte administratora!</p>
-}
+}  <div class="w-50 p-3">
+   <div class="shadow-lg p-3 mb-5 bg-body-tertiary rounded">
+    <div class="card">
+      <h5 class="card-header"> @radniZadatak.Todo</h5>
+       <div class="card-body">
+        <h5 class="card-title"> @radniZadatak.OpisPosla</h5>
+        <p class="card-text"> @radniZadatak.RadnikIme @radniZadatak.RadnikPrezime</p>
+        <p class="card-text"> @radniZadatak.Datum</p>
 
+            <button type="button" class="btn btn-primary" @onclick="Obrisi">Obriši</button>
+        <button type="button" class="btn btn-primary" @onclick="Natrag">Natrag</button>
+       </div>
+     </div>
+    </div>
+</div>
 
-<form >
-    <div class="mb-3">
-        <label for="ftodo" class="form-label">To do</label>
-        <input class="form-control" id="ftodo" @bind-value="radniZadatak.Todo" name="ftodo" type="text" />
-    </div>
-    <div class="mb-3">
-        <label for="fime" class="form-label">Ime radnika</label>
-        <input class="form-control" id="fime" @bind-value="radniZadatak.RadnikIme" name="fime" type="text"  />
-    </div>
-    <div class="mb-3">
-        <label for="fprezime" class="form-label">Prezime radnika</label>
-        <input class="form-control" id="fprezime" @bind-value="radniZadatak.RadnikPrezime" name="fprezime" type="text" />
-    </div>
-    <div class="mb-3">
-        <label for="fopis" class="form-label">Opis posla</label>
-        <input class="form-control" id="fopis" @bind-value="radniZadatak.OpisPosla" name="fopis" type="text" />
-    </div>
-    <div class="mb-3">
-        <label for="fdate" class="form-label">Datum</label>
-        <input class="form-control" id="fdate" @bind-value="radniZadatak.Datum" name="fdate" type="datetime"  />
-    </div>
-</form>
-
-        <button @onclick="Obrisi">Obriši</button>
 
 
 @code {
@@ -59,7 +48,7 @@
 
     public async Task Obrisi()
     {
-        await jsRun.InvokeVoidAsync("alert", "UPOZORENJE!"); /*invokanje alerta ,obavjest*/
+        await jsRun.InvokeVoidAsync("alert", "UPOZORENJE O BRISANJU STAVKE!"); /*invokanje alerta ,obavjest*/
 
         var confirm = await jsRun.InvokeAsync<bool>("confirm", "Jeste li sigurni da želite obrisati stavku?"); /*invokanje JS u C# , odlazi u IF*/
         if (confirm == true)  /*ako je odgovor-DA izvsava kod*/

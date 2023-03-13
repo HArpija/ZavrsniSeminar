@@ -5,8 +5,9 @@
 @inject IJSRuntime jsRun;
 
 
- <p><h3>Rijeseni zadatci</h3>
-<button @onclick="Natrag" type="button">Natrag</button></p>
+ <p><h3>Riješeni zadatci</h3>
+    <button type="button" class="btn btn-primary" @onclick="Natrag">Natrag</button>
+</p>
 
  @if (IsError==true)
 {
@@ -18,7 +19,7 @@
         <thead>
             <tr class="table-primary">
                 <th scope="col">Id</th>
-                <th scope="col">Todo</th>
+                <th scope="col">Zadatak</th>
                 <th scope="col">Radnik ime</th>
                 <th scope="col">Radnik prezime</th>
                 <th scope="col">Opis posla</th>
@@ -29,14 +30,14 @@
         @foreach (var item in radniZadataks)
         {
             <tbody>
-                <tr>
+                 <tr class="text-decoration-line-through">
                     <td> @item.Id</td>
                     <td> @item.Todo</td>
                     <td> @item.RadnikIme</td>
                     <td> @item.RadnikPrezime</td>
                     <td> @item.OpisPosla</td>
                     <td> @item.Datum</td>
-                    <td> <button @onclick="()=>Obrisi(item.Id)">Obriši</button> </td>
+                    <td> <button type="button" class="btn btn-primary" @onclick="()=>Obrisi(item.Id)">Obriši</button> </td>
                 </tr>
             </tbody>
         }
@@ -72,7 +73,7 @@
         if (result.IsSuccessStatusCode)
         {
             radniZadataks = await result.Content.ReadFromJsonAsync<List<RadniZadatak>>();
-            radniZadataks = radniZadataks.OrderByDescending(x => x.Datum).Where(x => x.IsDone == true).ToList();
+            radniZadataks = radniZadataks.OrderByDescending(x => x.Datum).Where(x => x.IsDone == true).ToList();   /* radi poziva NOW datuma u dodavanju zadatka,ispisuje vrijeme kada je zadatak rijesen  */
         }
     }
 
