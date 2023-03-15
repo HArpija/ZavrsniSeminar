@@ -2,7 +2,7 @@
 @using ZavrsniSeminar.Models;
 @inject HttpClient httpClient;
 @inject NavigationManager navManager;
-@inject IJSRuntime jsRun;
+
 
 
  <p><h3>Rijeseni zadatci</h3>
@@ -52,7 +52,7 @@
     public bool IsDone = true;
     public bool IsError = false;
     public List<RadniZadatak> radniZadataks = new List<RadniZadatak>();
-    public RadniZadatak radniZadatak = new RadniZadatak();
+
 
     protected override async Task OnInitializedAsync()   /* dohvacanje cijele liste iz Apija bez riješenih  */
     {
