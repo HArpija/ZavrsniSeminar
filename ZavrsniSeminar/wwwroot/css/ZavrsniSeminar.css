@@ -1,3 +1,24 @@
-﻿.card-header{
-    background-color:darkgray;
+﻿.card-header {
+    background-color: #c37497c7;
+}
+.sidebar {
+    background-image: linear-gradient(180deg, rgb(103 5 57) 0%, #a1850d 70%) !important;
+}
+.btn-primary {
+    background-color: #a1850d !important;
+}
+.btn:hover {
+ background-color: #6c1c2b !important;
+ border-color: #7c2545;
+}
+
+.table-primary {
+    --bs-table-bg: #c37497c7 !important;
+}
+.form-label {
+    background-color: #d6ceae;
+    color: #fff;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-radius: .25rem;
 }
