@@ -9,7 +9,7 @@
 
     <form @onsubmit="DodajZadatak">
     <div class="mb-3">
-        <label for="ftodo" class="form-label">To do</label>
+        <label for="ftodo" class="form-label">Zadatak</label>
         <input class="form-control" id="ftodo" @bind-value="radniZadatak.Todo" name="ftodo" type="text" placeholder="Upiši zadatak" />
     </div>
     <div class="mb-3">
@@ -39,7 +39,7 @@
     public async Task DodajZadatak()
     {
         radniZadatak.IsDone = false;               /* definiranje objekata koji nisu null   */
-        radniZadatak.Datum = DateTime.Now;
+        radniZadatak.Datum = DateTime.Now;        /* upisivanje trenutnog vremena za dodavanje zadatka */
         var result = await httpClient.PostAsJsonAsync<RadniZadatak>($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars", radniZadatak);
             if(result.IsSuccessStatusCode)
             {
