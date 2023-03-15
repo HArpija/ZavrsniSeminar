@@ -54,7 +54,7 @@
     public List<RadniZadatak> radniZadataks = new List<RadniZadatak>();
     public RadniZadatak radniZadatak = new RadniZadatak();
 
-    protected override async Task OnInitializedAsync()   /* dohvacanje cijele liste iz Apija  */
+    protected override async Task OnInitializedAsync()   /* dohvacanje cijele liste iz Apija bez riješenih  */
     {
         var result = await httpClient.GetAsync("https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars");
         if (result.IsSuccessStatusCode)
@@ -66,21 +66,6 @@
     }
 
 
-/*
-    public async Task Obrisi()
-    {
-        var result = await httpClient.DeleteAsync($"https://expertvjezbeapi.azurewebsites.net/api/ToDoSeminars/{Id}");
-        if(result.IsSuccessStatusCode)
-        {
-                navManager.NavigateTo($"/delete/{Id}");
-        }
-        else
-        {
-                IsError = true;
-        }
-         
-    }
-    */
        public void Obrisi(int id)
        {
        navManager.NavigateTo($"/delete/{id}");
